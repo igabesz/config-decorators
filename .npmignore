@@ -1,0 +1,12 @@
+*.js.map
+*.ts
+!*.d.ts
+.atomignore
+.editorconfig
+.gitignore
+.npmignore
+*.json
+!package.json
+
+node_modules
+test

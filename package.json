@@ -1,0 +1,34 @@
+{
+  "name": "config-decorators",
+  "version": "0.0.1",
+  "description": "Decorator lib for ENV-based configuration",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "repository" : {
+    "type": "git",
+    "url": "git@github.com:igabesz/config-decorators.git"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha test/index.js",
+    "version": "npm run build && npm run test"
+  },
+  "keywords": [
+    "decorator",
+    "environment",
+    "configuration",
+    "settings"
+  ],
+  "author": "Gabor Imre",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.35",
+    "@types/node": "^6.0.56",
+    "mocha": "^3.2.0"
+  }
+}
