@@ -2,8 +2,8 @@
   "name": "config-decorators",
   "version": "0.0.2",
   "description": "Decorator lib for ENV-based configuration",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git@github.com:igabesz/config-decorators.git"
