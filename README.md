@@ -46,6 +46,24 @@ import { config } from './config';
 mongoose.connect(config.mongoUrl);
 ```
 
+### Required ENV variables
+
+The ENV variable can be required; `loadConfig` will throw an error if there's no such ENV variable.
+Note that NOT the class decorators but the `loadConfig` throws the error.
+
+```
+export class Config {
+	@ENV('MONGO_URL', true)
+	mongoUrl: string;
+
+	@ENV('SERVER_PORT', parseInt, true)
+	port: number;
+}
+
+// Here comes the error
+export const config = loadConfig(Config);
+```
+
 ### How does it work?
 
 The main stuff is at `loadConfig`:
