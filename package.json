@@ -4,7 +4,7 @@
   "description": "Decorator lib for ENV-based configuration",
   "main": "index.js",
   "types": "index.d.ts",
-  "repository" : {
+  "repository": {
     "type": "git",
     "url": "git@github.com:igabesz/config-decorators.git"
   },
@@ -12,7 +12,8 @@
     "test": "test"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p src",
+    "build:test": "tsc -p test",
     "test": "mocha test/index.js",
     "version": "npm run build && npm run test"
   },

@@ -1,5 +1,5 @@
-import { loadConfig } from '../index';
 import * as assert from 'assert';
+import { loadConfig } from '../lib';
 
 
 let ConfigClass: any;

@@ -1,4 +1,4 @@
-import { ENV } from '../index';
+import { ENV } from '../lib';
 
 export class BasicConfig {
 	@ENV('PATH')
