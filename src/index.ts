@@ -43,7 +43,7 @@ function augmentInstance(Type: { __vars?: { [name: string]: IConfigMeta }}, inst
 		let value: any = process.env[configVar.env];
 		// No such env var
 		if (value === undefined) {
-			if (configVar.required) throw new Error('Missing ENV variable: ${configVar.env}');
+			if (configVar.required) throw new Error(`Missing ENV variable: ${configVar.env}`);
 			else continue;
 		}
 		// Trying to transform
