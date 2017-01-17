@@ -1,6 +1,10 @@
 # CHANGELOG
 
 
+## 2017-01-17 v0.0.4 Error message smallfix
+
+## 2017-01-16 v0.0.3 Deploy smallfix
+
 ## 2017-01-16 v0.0.2 Required ENV variables
 
 New Features:
