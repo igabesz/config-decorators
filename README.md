@@ -4,6 +4,7 @@ This is a configuration helper library that enables the efficient management of
 default dev settings and prod settings from environment variables. Useful for separating
 dev and prod environments, dockerization, etc.
 
+
 ## Install
 
 `npm i config-decorators -S`
@@ -13,7 +14,7 @@ dev and prod environments, dockerization, etc.
 
 - Create a class with the config props
   - Use inline settings for default values
-  - Use the `ENV` decorator to define overrides if the ENV variable is available
+  - Use the `ENV` or `CLI` decorator to define overrides if the ENV variable / CLI argument is available
 - Instantiate the class with the `loadConfig` call
   - You CAN instantiate the same class more than once
   - You CAN create several classes with various decorators
@@ -32,6 +33,11 @@ export class Config {
 	// Use it with a transform function
 	@ENV('SERVER_PORT', parseInt)
 	port = 8080;
+
+	// Or use the 'number' or 'boolean' shortcut
+	@ENV('SERVER_PORT_2', 'number')
+	@CLI('port2')
+	port2 = 8081;
 }
 
 export const config = loadConfig(Config);
@@ -46,9 +52,27 @@ import { config } from './config';
 mongoose.connect(config.mongoUrl);
 ```
 
-### Required ENV variables
 
-The ENV variable can be required; `loadConfig` will throw an error if there's no such ENV variable.
+### CLI variables
+
+Note that CLI has higher priority than ENV. `test.js`:
+
+```
+class CliTest1 {
+	@CLI('PATH')
+	@ENV('PATH')
+	path: string;
+}
+const config = loadConfig(CliTest1);
+console.log(config.path);
+```
+
+When calling `node test.js --PATH test` will print `test`, not the PATH environmental variable.
+
+
+### Required variables
+
+The ENV/CLI variable can be required; `loadConfig` will throw an error if there's no such ENV variable and no CLI argument.
 Note that NOT the class decorators but the `loadConfig` throws the error.
 
 ```
@@ -64,15 +88,17 @@ export class Config {
 export const config = loadConfig(Config);
 ```
 
+
 ### How does it work?
 
 The main stuff is at `loadConfig`:
 
 - First, it instantiates your class
-- Then it checks each prop having `ENV` decorators
-	- If there's no ENV variable with the given name then steps to next prop
-	- If there's a given transformator then the ENV variable is transformed
+- Then it checks each prop having `ENV` or `CLI` decorators
+	- If there's no ENV/CLI variable with the given name then steps to next prop
+	- If there's a given transformator then the value is transformed
 	- Overrides the value of the prop
+
 
 ## Tests
 
@@ -82,6 +108,7 @@ The main stuff is at `loadConfig`:
 - `npm run test`
 
 Tested on Node.js with TypeScript (2.1.4+) classes, ES6 build.
+
 
 ## Further Dev Plans -- NOT READY YET
 
@@ -95,10 +122,13 @@ Create an issue if you need something.
 	port = 8080;
 ```
 
-**CLI Parse**
+**Print help**
 
 ```
-	@ENV('SERVER_PORT', parseInt)
-	@CLI('port') // or something like this to parse `node app.js --port 8081`
-	port = 8080;
+if (config.help) {
+	printHelp(ConfigClass1, ConfigClass2); // <- here
+	return;
+}
 ```
+
+**Wider interface to minimist, e.g. aliases**

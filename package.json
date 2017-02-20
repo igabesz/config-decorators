@@ -25,7 +25,9 @@
   ],
   "author": "Gabor Imre",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "minimist": "^1.2.0"
+  },
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.35",

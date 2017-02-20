@@ -1,6 +1,10 @@
+import * as parseArgs from 'minimist';
+
+
 interface IConfigMeta {
 	name: string;
-	env: string;
+	env?: string;
+	cli?: string;
 	required?: boolean;
 	transform?: (envVariable: string) => any;
 }
@@ -8,26 +12,56 @@ interface IConfigMeta {
 
 export type PropertyAnnotation = (target: { constructor: any }, paramName: string) => void;
 
-export function ENV(envVarName: string): PropertyAnnotation;
-export function ENV(envVarName: string, required: boolean): PropertyAnnotation;
-export function ENV(envVarName: string, transform: (envVariable: string) => any): PropertyAnnotation;
-export function ENV(envVarName: string, transform: (envVariable: string) => any, required: boolean): PropertyAnnotation;
-export function ENV(envVarName: string, param2?: ((envVariable: string) => any) | boolean, param3?: boolean) {
+export interface ENV {
+	(envVarName: string): PropertyAnnotation;
+	(envVarName: string, required: boolean): PropertyAnnotation;
+	(envVarName: string, type: 'number' | 'boolean'): PropertyAnnotation;
+	(envVarName: string, type: 'number' | 'boolean', required: boolean): PropertyAnnotation;
+	(envVarName: string, transform: (envVariable: string) => any): PropertyAnnotation;
+	(envVarName: string, transform: (envVariable: string) => any, required: boolean): PropertyAnnotation;
+}
+export function ENV(envVarName: string, param2?: ((envVariable: string) => any) | boolean | 'number' | 'boolean', param3?: boolean) {
+	return createDecorator(envVarName, undefined, param2, param3);
+}
+
+export interface CLI {
+	(cliVarName: string): PropertyAnnotation;
+	(cliVarName: string, required: boolean): PropertyAnnotation;
+	(cliVarName: string, type: 'number' | 'boolean'): PropertyAnnotation;
+	(cliVarName: string, type: 'number' | 'boolean', required: boolean): PropertyAnnotation;
+	(cliVarName: string, transform: (envVariable: string) => any): PropertyAnnotation;
+	(cliVarName: string, transform: (envVariable: string) => any, required: boolean): PropertyAnnotation;
+}
+export function CLI(cliVarName: string, param2?: ((envVariable: string) => any) | boolean | 'number' | 'boolean', param3?: boolean) {
+	return createDecorator(undefined, cliVarName, param2, param3);
+}
+
+function createDecorator(
+	env: string | undefined,
+	cli: string | undefined,
+	param2: ((envVariable: string) => any) | boolean | 'number' | 'boolean' | undefined,
+	param3?: boolean | undefined,
+) {
 	let transform: (envVariable: string) => any | undefined = undefined;
 	let required: boolean | undefined = undefined;
+	if (param2 === 'number') transform = (str: string) => parseFloat(str);
+	if (param2 === 'boolean') transform = (str: string) => !!str;
 	if (typeof param2 === 'function') transform = param2;
 	if (typeof param2 === 'boolean') required = param2;
 	if (typeof param3 === 'boolean') required = param3;
 
 	return (target: { constructor: any }, paramName: string) => {
 		let ctor = target.constructor as { __vars?: { [name: string]: IConfigMeta }};
+		// Preparing
 		ctor.__vars = ctor.__vars || {};
-		ctor.__vars[paramName] = {
-			name: paramName,
-			env: envVarName,
-			required,
-			transform,
-		};
+		ctor.__vars[paramName] = ctor.__vars[paramName] || <any>{};
+		let meta = ctor.__vars[paramName];
+		// Saving props
+		meta.name = paramName;
+		env && (meta.env = env);
+		cli && (meta.cli = cli);
+		required && (meta.required = required);
+		transform && (meta.transform = transform);
 	};
 }
 
@@ -36,14 +70,25 @@ export function loadConfig<T>(Type: { new(): T }): T {
 	return augmentInstance(Type, result);
 }
 
-
 function augmentInstance(Type: { __vars?: { [name: string]: IConfigMeta }}, instance) {
 	for (let name in Type.__vars || {}) {
 		let configVar = Type.__vars[name];
-		let value: any = process.env[configVar.env];
+		let value: any;
+		// ENV: Lower priority
+		if (configVar.env) {
+			value = process.env[configVar.env];
+		}
+		// CLI: Higher priority
+		if (configVar.cli) {
+			value = parseArgs(process.argv)[configVar.cli];
+		}
 		// No such env var
 		if (value === undefined) {
-			if (configVar.required) throw new Error(`Missing ENV variable: ${configVar.env}`);
+			if (configVar.required) {
+				let envText = configVar.env ? `ENV=${configVar.env}` : '';
+				let cliText = configVar.cli ? `CLI=${configVar.cli}` : '';
+				throw new Error(`Missing variable: ${configVar.name}; ${envText} ${cliText}`);
+			}
 			else continue;
 		}
 		// Trying to transform

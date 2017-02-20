@@ -1,8 +1,10 @@
+import * as child_process from 'child_process';
 import { loadConfig } from '../lib';
 import { assert } from 'chai';
 import { BasicConfig } from './BasicConfig';
 import { TransformConfig } from './TransformConfig';
 import { RequiredConfigA, RequiredConfigB, RequiredSuccess } from './RequiredConfig';
+import { CliTest1 } from './cli-test1';
 
 
 let ConfigClass: any;
@@ -79,5 +81,47 @@ describe('Required', () => {
 		assert.throws(() => {
 			let cannotInstantiate = loadConfig(classB);
 		});
+	});
+});
+
+describe('CLI', () => {
+	let gotMessage = false;
+	let config: CliTest1;
+
+	it('should execute child process with CLI arguments', async () => {
+		let child = child_process.fork('test/cli-test1', ['--PATH', 'test', '-x42', '--booltrue']);
+		await new Promise((resolve, reject) => {
+			child.on('message', msg => {
+				if (gotMessage) return;
+				gotMessage = true;
+				if (msg.err) return reject(msg.err);
+				config = msg.config;
+				return resolve(msg.config);
+			});
+			child.on('exit', () => {
+				if (gotMessage) return;
+				gotMessage = true;
+				reject('Child proceess exited without message');
+			});
+			child.on('error', err => {
+				console.log('error', err);
+			});
+		});
+	});
+
+	it('should prioritize CLI over ENV', () => {
+		assert.ok(config);
+		assert.equal(config.path, 'test');
+	});
+
+	it('should parse numbers', () => {
+		assert.ok(config);
+		assert.equal(config.x, 42);
+	});
+
+	it('should parse booleans', () => {
+		assert.ok(config);
+		assert.ok(config.boolTrue);
+		assert.notOk(config.boolFalse);
 	});
 });
