@@ -73,21 +73,27 @@ export function loadConfig<T>(Type: { new(): T }): T {
 function augmentInstance(Type: { __vars?: { [name: string]: IConfigMeta }}, instance) {
 	for (let name in Type.__vars || {}) {
 		let configVar = Type.__vars[name];
+		let hasValue = false;
 		let value: any;
 		// ENV: Lower priority
-		if (configVar.env) {
+		if (configVar.env && configVar.env in process.env) {
 			value = process.env[configVar.env];
+			hasValue = true;
 		}
 		// CLI: Higher priority
 		if (configVar.cli) {
-			value = parseArgs(process.argv)[configVar.cli] || value;
+			let args = parseArgs(process.argv)
+			if (configVar.cli in args) {
+				value = args[configVar.cli];
+				hasValue = true;
+			}
 		}
 		// No such env var
-		if (value === undefined) {
+		if (!hasValue) {
 			if (configVar.required) {
-				let envText = configVar.env ? `ENV=${configVar.env}` : '';
-				let cliText = configVar.cli ? `CLI=${configVar.cli}` : '';
-				throw new Error(`Missing variable: ${configVar.name}; ${envText} ${cliText}`);
+				let envText = configVar.env ? ` ENV=${configVar.env}` : '';
+				let cliText = configVar.cli ? ` CLI=${configVar.cli}` : '';
+				throw new Error(`Missing variable: ${configVar.name};${envText}${cliText}`);
 			}
 			else continue;
 		}
