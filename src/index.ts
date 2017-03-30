@@ -1,3 +1,4 @@
+///<reference path="../node_modules/@types/node/index.d.ts"/>
 import * as parseArgs from 'minimist';
 
 
@@ -80,7 +81,7 @@ function augmentInstance(Type: { __vars?: { [name: string]: IConfigMeta }}, inst
 		}
 		// CLI: Higher priority
 		if (configVar.cli) {
-			value = parseArgs(process.argv)[configVar.cli];
+			value = parseArgs(process.argv)[configVar.cli] || value;
 		}
 		// No such env var
 		if (value === undefined) {
