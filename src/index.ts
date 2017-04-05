@@ -82,7 +82,7 @@ function augmentInstance(Type: { __vars?: { [name: string]: IConfigMeta }}, inst
 		}
 		// CLI: Higher priority
 		if (configVar.cli) {
-			let args = parseArgs(process.argv)
+			let args = parseArgs(process.argv);
 			if (configVar.cli in args) {
 				value = args[configVar.cli];
 				hasValue = true;
