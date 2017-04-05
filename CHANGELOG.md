@@ -1,6 +1,12 @@
 # CHANGELOG
 
 
+## 2017-04-05 v0.1.4 ES5 build
+
+Plus extending the tests to cover more scenarios.
+
+## 2017-03-30 v0.1.1-0.1.3 Build and usage fixes
+
 ## 2017-01-17 v0.1.0 CLI support
 
 New Features:
