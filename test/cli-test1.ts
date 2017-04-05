@@ -1,10 +1,6 @@
 import { ENV, CLI, loadConfig } from '../lib';
 
 export class CliTest1 {
-	@CLI('PATH')
-	@ENV('PATH')
-	path: string;
-
 	@CLI('x', 'number')
 	x: number;
 
