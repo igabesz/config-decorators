@@ -36,6 +36,12 @@ export function CLI(cliVarName: string, param2?: ((envVariable: string) => any) 
 	return createDecorator(undefined, cliVarName, param2, param3);
 }
 
+function parseBoolean(str: string) {
+	str = str || '';
+	if (['', '0', 'false'].indexOf(str.toString()) !== -1) { return false; }
+	return true;
+}
+
 function createDecorator(
 	env: string | undefined,
 	cli: string | undefined,
@@ -45,7 +51,7 @@ function createDecorator(
 	let transform: (envVariable: string) => any | undefined = undefined;
 	let required: boolean | undefined = undefined;
 	if (param2 === 'number') transform = (str: string) => parseFloat(str);
-	if (param2 === 'boolean') transform = (str: string) => !!str;
+	if (param2 === 'boolean') transform = (str: string) => parseBoolean(str);
 	if (typeof param2 === 'function') transform = param2;
 	if (typeof param2 === 'boolean') required = param2;
 	if (typeof param3 === 'boolean') required = param3;
@@ -67,7 +73,8 @@ function createDecorator(
 
 export function loadConfig<T>(Type: { new(): T }): T {
 	let result = new Type();
-	return augmentInstance(Type, result);
+	// WARNING: We don't see `__vars` externally on `Type`.
+	return augmentInstance(Type as any, result);
 }
 
 function augmentInstance(Type: { __vars?: { [name: string]: IConfigMeta }}, instance) {
