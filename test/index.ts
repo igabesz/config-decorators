@@ -20,6 +20,13 @@ describe('Environment', () => {
 
 describe('Basics', () => {
 	let basicConfigInstance: BasicConfig;
+
+	before(() => {
+		process.env.SOMETHING1_ENABLED = 'false';
+		process.env.SOMETHING2_ENABLED = '';
+		process.env.SOMETHING3_ENABLED = '0';
+	});
+
 	it('should not fail creating the class', () => {
 		ConfigClass = require('./BasicConfig').BasicConfig;
 	});
@@ -31,12 +38,22 @@ describe('Basics', () => {
 	it('should have non-null PATH length', () => {
 		assert.equal(typeof basicConfigInstance.path, 'string');
 		assert.equal(basicConfigInstance.wontTouchThis, 'wontTouchThis');
+		assert.equal(basicConfigInstance.something1Enabled, false);
+		assert.equal(basicConfigInstance.something2Enabled, false);
+		assert.equal(basicConfigInstance.something3Enabled, false);
 		assert.notEqual(basicConfigInstance.path.length, 0);
+	});
+
+	after(() => {
+		delete process.env.SOMETHING1_ENABLED;
+		delete process.env.SOMETHING2_ENABLED;
+		delete process.env.SOMETHING3_ENABLED;
 	});
 });
 
 describe('Transform', () => {
 	let transformConfigInstance: TransformConfig;
+
 	it('should not fail creating the class (transformed)', () => {
 		ConfigClass = require('./TransformConfig').TransformConfig;
 	});

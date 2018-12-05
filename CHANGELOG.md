@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2018-12-05 v0.1.5 Boolean parsing fix
+
+Boolean values will be parsed as boolean values so `SOME_ENV=false` will be `false`.
+`SOME_ENV=0` or `SOME_ENV=` also remains `false`.
+Everything else will be parsed as `true`.
 
 ## 2017-04-05 v0.1.4 ES5 build
 

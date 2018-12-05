@@ -34,10 +34,17 @@ export class Config {
 	@ENV('SERVER_PORT', parseInt)
 	port = 8080;
 
-	// Or use the 'number' or 'boolean' shortcut
+	// Or use the 'number' shortcut
 	@ENV('SERVER_PORT_2', 'number')
 	@CLI('port2')
 	port2 = 8081;
+
+	// Rules for boolean values:
+	// '0', '', 'false' will be parsed as `false`.
+	// Everything else will be `true`.
+	@ENV('ENABLE_AUTH', 'boolean')
+	@CLI('enable-auth')
+	enableAuth = true;
 }
 
 export const config = loadConfig(Config);
