@@ -6,6 +6,8 @@ Boolean values will be parsed as boolean values so `SOME_ENV=false` will be `fal
 `SOME_ENV=0` or `SOME_ENV=` also remains `false`.
 Everything else will be parsed as `true`.
 
+Dev deps are updated.
+
 ## 2017-04-05 v0.1.4 ES5 build
 
 Plus extending the tests to cover more scenarios.
